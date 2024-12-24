@@ -11,5 +11,12 @@
   "action": {},
   "background": {
     "service_worker": "scripts/background.ts"
-  }
+  },
+
+  "content_scripts": [
+   {
+     "matches": ["https://highseas.hackclub.com/*"],
+     "js": ["scripts/shipyard.ts"]
+   }
+ ]
 }
