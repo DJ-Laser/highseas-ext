@@ -1,47 +1,34 @@
-let previousUrl = "";
-const observer = new MutationObserver(function (mutations) {
-  if (location.href !== previousUrl) {
-    previousUrl = location.href;
+function setupObservers(
+  onPageChange: () => void,
+  onStorageUpdated: (key: string, value: string) => void,
+) {
+  // Notify when the url of the single page app changes
+  let previousUrl = "";
+  const observer = new MutationObserver(function (mutations) {
+    if (location.href !== previousUrl) {
+      previousUrl = location.href;
+      onPageChange();
+    }
+  });
 
-    // When single page app URL changes
-    onPageChange();
-  }
-});
+  observer.observe(document, { subtree: true, childList: true });
 
-const config = { subtree: true, childList: true };
-observer.observe(document, config);
-
-function onPageChange() {
-  let path = window.location.pathname;
-  console.log(`Hello, ${path}!`);
+  // Add hook to observe when localstorage is updated
+  const localStore = localStorage.setItem;
+  localStorage.setItem = function (key, value) {
+    localStore.apply(this, [key, value]);
+    onStorageUpdated(key, value);
+  };
 }
 
-class CustomStorageEvent extends Event {
-  key: string;
-  value: string;
-
-  constructor(key: string, value: string) {
-    super("localStorageUpdated");
-
-    this.key = key;
-    this.value = value;
-  }
-}
-
-const localStore = localStorage.setItem;
-localStorage.setItem = function (key, value) {
-  const event = new CustomStorageEvent(key, value);
-
-  document.dispatchEvent(event);
-  localStore.apply(this, [key, value]);
-};
-
-document.addEventListener("localStorageUpdated", (e) => {
-  let event = e as CustomStorageEvent;
-  console.log(`👉 localStorage.set('${event.key}', '${event.value}') updated`);
-});
-
-localStorage.setItem("sheeps", "400");
-
-console.log("Hello, High Seas!");
-console.log(localStorage);
+setupObservers(
+  // on url change
+  () => {
+    let path = window.location.pathname;
+    console.log(`Hello, ${path}!`);
+  },
+  // on storage updated
+  (key: string, value: string) => {
+    console.log(`👉 localStorage.set('${key}', '${value}') updated`);
+  },
+);
