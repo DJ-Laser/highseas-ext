@@ -15,7 +15,7 @@
         pkgs = import nixpkgs {inherit system;};
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [alejandra node2nix nodejs];
+          buildInputs = with pkgs; [alejandra node2nix nodejs chromium];
         };
       }
     );

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest.json",
+  "manifest_version": 3,
+
+  "name": "djlaser-hsext",
+  "author": "DJ_Laser",
+  "version": "1.0",
+
+  "description": "A non bugged high seas extension",
+
+  "action": {},
+  "background": {
+    "service_worker": "scripts/background.ts"
+  }
+}
