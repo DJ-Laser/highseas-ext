@@ -1,10 +1,10 @@
 /**
-  @typedef {import("../../scripts/types.ts").Message} Message
+  @typedef {import("../../scripts/messaging.ts").Message} Message
 */
 
-const localStore = localStorage.setItem;
+const setStorage = localStorage.setItem;
 localStorage.setItem = function (key, value) {
-  localStore.apply(this, [key, value]);
+  setStorage.apply(this, [key, value]);
   onStorageChanged(key, value);
 };
 
