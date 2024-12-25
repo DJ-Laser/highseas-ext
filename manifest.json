@@ -14,9 +14,19 @@
   },
 
   "content_scripts": [
-   {
-     "matches": ["https://highseas.hackclub.com/*"],
-     "js": ["scripts/shipyard.ts"]
-   }
- ]
+    {
+      "matches": ["https://highseas.hackclub.com/*"],
+      "js": ["scripts/harbor.ts"]
+    }
+  ],
+
+  "web_accessible_resources": [{
+    "resources": ["resources/*"],
+    "matches": ["https://highseas.hackclub.com/*"]
+  }],
+
+  "externally_connectable": {
+    "ids": ["*"],
+    "matches": ["https://highseas.hackclub.com/*"]
+  }
 }

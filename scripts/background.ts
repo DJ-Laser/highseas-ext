@@ -1,3 +1,11 @@
-browser.action.onClicked.addListener(function () {
-  browser.tabs.create({ url: "pages/landing.html" });
-});
+import type { Message } from "./types";
+function updateStorage() {}
+
+browser.runtime.onMessage.addListener(
+  (message: Message, sender, sendResponse) => {
+    switch (message.id) {
+      case "visitedSite": {
+      }
+    }
+  },
+);
