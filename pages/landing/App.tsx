@@ -16,7 +16,7 @@ function App() {
           <Logo href="https://react.dev" src={reactLogo} alt="React logo" />
         </span>
       </div>
-      <h1 className="my-8 font-bold text-5xl leading-5">Vite + React</h1>
+      <h1 className="my-8 font-bold text-5xl">Vite + React</h1>
       <div className="p-8">
         <button
           className="px-5 py-2 rounded-lg bg-neutral-900 border border-transparent hover:border-cyan-400 cursor-pointer transition-colors duration-250"

@@ -8,7 +8,9 @@
 
   "description": "A non bugged high seas extension",
 
-  "action": {},
+  "action": {
+    "default_popup": "pages/landing/landing.html"
+  },
   "background": {
     "service_worker": "scripts/background.ts"
   },
