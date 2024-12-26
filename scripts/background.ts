@@ -9,9 +9,11 @@ import {
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
   getStorageItem,
+  parseShipData,
   setCacheItem,
   setStorageItem,
   type ShopItem,
+  type SourceShipData,
 } from "./storage";
 
 function updateStorage(key: string, value: string) {
@@ -20,6 +22,7 @@ function updateStorage(key: string, value: string) {
       setStorageItem(FAVOURITE_ITEMS_KEY, value, browser.storage.sync);
       break;
     }
+
     case "cache.shopItems": {
       const items = JSON.parse(value).value as Array<ShopItem>;
       const itemData = items.map<ShopItem>((item) => ({
@@ -31,8 +34,21 @@ function updateStorage(key: string, value: string) {
       setCacheItem<ShopItem[]>(EXT_SHOP_ITEMS_KEY, itemData);
       break;
     }
+
     case "cache.personTicketBalance": {
       setCacheItem<number>(EXT_NUM_DOUBLOONS_KEY, JSON.parse(value).value);
+      break;
+    }
+
+    case "cache.ships": {
+      const ships: SourceShipData[] = JSON.parse(value).value;
+      if (!ships) {
+        console.log("Ship cache cleared");
+        break;
+      }
+
+      console.log(parseShipData(ships));
+      break;
     }
   }
 }

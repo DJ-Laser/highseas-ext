@@ -48,3 +48,92 @@ export const EXT_NUM_DOUBLOONS_KEY = "numDoubloons";
 export async function getcurrentDoubloons(): Promise<number> {
   return (await getCacheItem<number>(EXT_NUM_DOUBLOONS_KEY)) ?? 0;
 }
+
+export const EXT_SHIPS_KEY = "currentShips";
+type ShipStatus = "shipped" | "staged";
+
+export interface SourceShipData {
+  id: string;
+  title: string;
+  credited_hours: number;
+  total_hours: number;
+  paidOut: boolean;
+  doubloonPayout: number | undefined;
+  shipStatus: ShipStatus;
+  reshippedFromId: string | null;
+  reshippedToId: string | null;
+  screenshotUrl: string;
+  deploymentUrl: string;
+  repoUrl: string;
+}
+
+interface ShipUpdate {
+  id: string;
+  credited_hours: number;
+  shipStatus: ShipStatus;
+  doubloonPayout: number;
+  paidOut: boolean;
+}
+
+export interface ShipData {
+  title: string;
+  total_hours: number;
+  totalDoubloons: number;
+  screenshotUrl: string;
+  deploymentUrl: string;
+  repoUrl: string;
+  updates: ShipUpdate[];
+}
+
+export function parseShipData(sourceData: SourceShipData[]): ShipData[] {
+  const sourceMap = new Map<string, SourceShipData>();
+  for (const ship of sourceData) {
+    sourceMap.set(ship.id, ship);
+  }
+
+  const ships: ShipData[] = [];
+  for (const ship of sourceMap.values()) {
+    // This is an update to a previous ship
+    if (ship.reshippedFromId !== null) continue;
+
+    const shipUpdates: ShipUpdate[] = [];
+    let totalDoubloons = 0;
+    let currentShip = ship;
+    while (true) {
+      totalDoubloons += currentShip.doubloonPayout ?? 0;
+      shipUpdates.push({
+        id: currentShip.id,
+        credited_hours: currentShip.credited_hours,
+        shipStatus: currentShip.shipStatus,
+        doubloonPayout: currentShip.doubloonPayout ?? 0,
+        paidOut: currentShip.paidOut,
+      });
+
+      // This is the latest ship in the update chain, use it to get the mian ship values
+      if (!currentShip.reshippedToId) break;
+      const maybeShip = sourceMap.get(currentShip.reshippedToId);
+
+      if (!maybeShip) {
+        console.error(
+          `Could not find ship id ${currentShip.reshippedToId}, required by ship ${currentShip.id}`,
+        );
+        // This is the latest ship in the chain before lookup failed, so use this one
+        break;
+      } else {
+        currentShip = maybeShip;
+      }
+    }
+
+    ships.push({
+      title: currentShip.title,
+      totalDoubloons: totalDoubloons,
+      total_hours: currentShip.total_hours,
+      screenshotUrl: currentShip.screenshotUrl,
+      deploymentUrl: currentShip.deploymentUrl,
+      repoUrl: currentShip.repoUrl,
+      updates: shipUpdates,
+    });
+  }
+
+  return ships;
+}

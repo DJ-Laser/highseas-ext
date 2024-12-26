@@ -20,14 +20,6 @@ function setupObservers(onPageChange: () => void) {
     }
   });
 
-  window.addEventListener("hashchange", function () {
-    console.log("Hchange");
-  });
-
-  window.addEventListener("popstate", function () {
-    console.log("Pstate");
-  });
-
   observer.observe(document, { subtree: true, childList: true });
 
   // Inject script to observe when localstorage is updated
@@ -88,7 +80,6 @@ async function injectShop() {
     const itemData = shopItems.get(item.id);
     if (!itemData) continue;
 
-    console.log(currentDoubloons);
     const itemPrice = useUsPrices ? itemData.priceUs : itemData.priceGlobal;
     let text;
 
