@@ -5,6 +5,7 @@ import {
   type VisitedSiteMessage,
 } from "./messaging";
 import {
+  EXT_CACHED_SHIPS_KEY,
   EXT_NUM_DOUBLOONS_KEY,
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
@@ -12,6 +13,7 @@ import {
   parseShipData,
   setCacheItem,
   setStorageItem,
+  type ShipData,
   type ShopItem,
   type SourceShipData,
 } from "./storage";
@@ -41,13 +43,15 @@ function updateStorage(key: string, value: string) {
     }
 
     case "cache.ships": {
-      const ships: SourceShipData[] = JSON.parse(value).value;
-      if (!ships) {
+      const rawShips: SourceShipData[] = JSON.parse(value).value;
+      if (!rawShips) {
         console.log("Ship cache cleared");
         break;
       }
 
-      console.log(parseShipData(ships));
+      const shipData = parseShipData(rawShips);
+      console.log("Updating cached ship data: ", shipData);
+      setCacheItem<ShipData[]>(EXT_CACHED_SHIPS_KEY, shipData);
       break;
     }
   }

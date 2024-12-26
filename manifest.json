@@ -33,7 +33,6 @@
   }],
 
   "externally_connectable": {
-    "ids": ["*"],
     "matches": ["https://highseas.hackclub.com/*"]
   }
 }

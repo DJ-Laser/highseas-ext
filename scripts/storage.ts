@@ -49,7 +49,12 @@ export async function getcurrentDoubloons(): Promise<number> {
   return (await getCacheItem<number>(EXT_NUM_DOUBLOONS_KEY)) ?? 0;
 }
 
-export const EXT_SHIPS_KEY = "currentShips";
+export const EXT_CACHED_SHIPS_KEY = "cachedShips";
+
+export async function get_ship_data(): Promise<ShipData[]> {
+  return (await getCacheItem<ShipData[]>(EXT_CACHED_SHIPS_KEY)) ?? [];
+}
+
 type ShipStatus = "shipped" | "staged";
 
 export interface SourceShipData {
@@ -77,8 +82,12 @@ interface ShipUpdate {
 
 export interface ShipData {
   title: string;
-  total_hours: number;
+  // The hours spent to get `totalDoubloons` (only includes paid out updates)
+  // used for calculating doubloons per hour
+  paidHours: number;
   totalDoubloons: number;
+  // Null for non paid out initial ships or those that have 0 hours somehow
+  doubloonsPerHour: number | null;
   screenshotUrl: string;
   deploymentUrl: string;
   repoUrl: string;
@@ -97,10 +106,8 @@ export function parseShipData(sourceData: SourceShipData[]): ShipData[] {
     if (ship.reshippedFromId !== null) continue;
 
     const shipUpdates: ShipUpdate[] = [];
-    let totalDoubloons = 0;
     let currentShip = ship;
     while (true) {
-      totalDoubloons += currentShip.doubloonPayout ?? 0;
       shipUpdates.push({
         id: currentShip.id,
         credited_hours: currentShip.credited_hours,
@@ -124,10 +131,24 @@ export function parseShipData(sourceData: SourceShipData[]): ShipData[] {
       }
     }
 
+    const totalDoubloons = shipUpdates.reduce<number>(
+      (total, ship) => total + ship.doubloonPayout,
+      0,
+    );
+
+    const paidHours = shipUpdates.reduce<number>(
+      (total, ship) => (ship.paidOut ? ship.credited_hours : 0),
+      0,
+    );
+
+    const doubloonsPerHour =
+      totalDoubloons > 0 && paidHours > 0 ? totalDoubloons / paidHours : null;
+
     ships.push({
       title: currentShip.title,
-      totalDoubloons: totalDoubloons,
-      total_hours: currentShip.total_hours,
+      paidHours,
+      totalDoubloons,
+      doubloonsPerHour,
       screenshotUrl: currentShip.screenshotUrl,
       deploymentUrl: currentShip.deploymentUrl,
       repoUrl: currentShip.repoUrl,
@@ -136,4 +157,18 @@ export function parseShipData(sourceData: SourceShipData[]): ShipData[] {
   }
 
   return ships;
+}
+
+export function getDoubloonsPerHour(ships: ShipData[]) {
+  const totalDoubloons = ships.reduce<number>(
+    (total, ship) => total + ship.totalDoubloons,
+    0,
+  );
+
+  const totalPaidHours = ships.reduce<number>(
+    (total, ship) => total + ship.paidHours,
+    0,
+  );
+
+  return totalDoubloons / totalPaidHours;
 }
