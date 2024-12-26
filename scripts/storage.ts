@@ -51,7 +51,7 @@ export async function getcurrentDoubloons(): Promise<number> {
 
 export const EXT_CACHED_SHIPS_KEY = "cachedShips";
 
-export async function get_ship_data(): Promise<ShipData[]> {
+export async function getShipData(): Promise<ShipData[]> {
   return (await getCacheItem<ShipData[]>(EXT_CACHED_SHIPS_KEY)) ?? [];
 }
 
@@ -137,7 +137,7 @@ export function parseShipData(sourceData: SourceShipData[]): ShipData[] {
     );
 
     const paidHours = shipUpdates.reduce<number>(
-      (total, ship) => (ship.paidOut ? ship.credited_hours : 0),
+      (total, ship) => total + (ship.paidOut ? ship.credited_hours : 0),
       0,
     );
 
@@ -157,18 +157,4 @@ export function parseShipData(sourceData: SourceShipData[]): ShipData[] {
   }
 
   return ships;
-}
-
-export function getDoubloonsPerHour(ships: ShipData[]) {
-  const totalDoubloons = ships.reduce<number>(
-    (total, ship) => total + ship.totalDoubloons,
-    0,
-  );
-
-  const totalPaidHours = ships.reduce<number>(
-    (total, ship) => total + ship.paidHours,
-    0,
-  );
-
-  return totalDoubloons / totalPaidHours;
 }

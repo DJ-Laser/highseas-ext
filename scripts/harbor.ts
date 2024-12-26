@@ -2,8 +2,10 @@ import { sendMessage } from "./messaging";
 import {
   FAVOURITE_ITEMS_KEY,
   getcurrentDoubloons,
+  getShipData,
   getShopItems,
 } from "./storage";
+import { getDoubloonsPerHour } from "./util";
 
 function setupObservers(onPageChange: () => void) {
   window.addEventListener("load", function () {
@@ -73,28 +75,34 @@ async function injectShop() {
   const shopElement = document.getElementById("harbor-tab-scroll-element")!;
   const items = shopElement.querySelectorAll("[id^='item_']");
 
-  const currentDoubloons = await getcurrentDoubloons();
-  const shopItems = await getShopItems();
+  const [currentDoubloons, shopItems, ships] = await Promise.all([
+    getcurrentDoubloons(),
+    getShopItems(),
+    getShipData(),
+  ]);
+
+  const doubloonsPerHour = getDoubloonsPerHour(ships);
 
   for (const item of items) {
     const itemData = shopItems.get(item.id);
     if (!itemData) continue;
 
     const itemPrice = useUsPrices ? itemData.priceUs : itemData.priceGlobal;
-    let text;
-
     if (itemPrice > currentDoubloons) {
-      const fraction = currentDoubloons / itemPrice;
-      const percent = Math.trunc(fraction * 100);
-      text = `Progress: ${percent}% (${itemPrice - currentDoubloons} doubloons to go)`;
-    } else {
-      text = `Would leave you with ${currentDoubloons - itemPrice} doubloons`;
+      const doubloonsNeeded = itemPrice - currentDoubloons;
+      const hoursLeft = doubloonsNeeded / doubloonsPerHour;
+      const hoursFormatted =
+        hoursLeft < 1 ? Math.trunc(hoursLeft * 10) / 10 : Math.trunc(hoursLeft);
+
+      const disabledButton = item.children[2].children[0] as HTMLButtonElement;
+      disabledButton.innerText = `${hoursFormatted} hours to go`;
     }
+
+    const hoursWorth = Math.trunc((itemPrice / doubloonsPerHour) * 10) / 10;
 
     const hoursText = item.children[0].children[3]
       .children[1] as HTMLSpanElement;
-
-    hoursText.innerText = text;
+    hoursText.innerText = `(${hoursWorth} hours worth)`;
   }
 }
 
