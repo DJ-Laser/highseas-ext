@@ -68,8 +68,7 @@ browser.runtime.onMessage.addListener(
       }
 
       default: {
-        console.log("Unknown internal message:");
-        console.log(message);
+        console.error("Unknown internal message: ", message);
       }
     }
   },
@@ -83,8 +82,7 @@ browser.runtime.onMessageExternal.addListener((message: Message) => {
     }
 
     default: {
-      console.log("Unknown external message:");
-      console.log(message);
+      console.error("Unknown external message: ", message);
     }
   }
 });
