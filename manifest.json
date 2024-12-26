@@ -13,7 +13,7 @@
   ],
 
   "action": {
-    "default_popup": "pages/landing/landing.html"
+    "default_popup": "pages/popup/popup.html"
   },
   
   "background": {
