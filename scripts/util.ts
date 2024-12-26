@@ -8,18 +8,16 @@ export function truncateTo(num: number, factor: number) {
   return Math.trunc(num * factor) / factor;
 }
 
-export function getDoubloonsPerHour(ships: ShipData[]) {
-  const totalDoubloons = ships.reduce<number>(
-    (total, ship) => total + ship.totalDoubloons,
-    0,
-  );
+export function getTotalDoubloons(ships: ShipData[]): number {
+  return ships.reduce<number>((total, ship) => total + ship.totalDoubloons, 0);
+}
 
-  const totalPaidHours = ships.reduce<number>(
-    (total, ship) => total + ship.paidHours,
-    0,
-  );
+export function getTotalHours(ships: ShipData[]): number {
+  return ships.reduce<number>((total, ship) => total + ship.paidHours, 0);
+}
 
-  return totalDoubloons / totalPaidHours;
+export function getDoubloonsPerHour(ships: ShipData[]): number {
+  return getTotalDoubloons(ships) / getTotalHours(ships);
 }
 
 // True if a ship was ever shipped, even if there are draft updates
