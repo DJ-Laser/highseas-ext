@@ -253,6 +253,7 @@ async function injectShop() {
   ]);
 
   const doubloonsPerHour = getDoubloonsPerHour(ships);
+  if (!isFinite(doubloonsPerHour) || doubloonsPerHour == 0) return;
 
   for (const item of items) {
     const itemData = shopItems.get(item.id);
