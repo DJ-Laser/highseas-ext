@@ -186,16 +186,11 @@ async function injectShipyard(ships: ShipData[]) {
 
   injectStats(ships);
 
-  let shipIdx = -1;
-  while (true) {
-    shipIdx++;
+  const shippedShipElements = document.querySelectorAll(
+    "[id^='shipped-ship-']",
+  );
 
-    const maybeShip = document.getElementById(
-      `shipped-ship-${shipIdx}-shipped`,
-    );
-
-    if (!maybeShip) break;
-    const shipElement = maybeShip.children[0] as HTMLDivElement;
+  for (const [shipIdx, shipElement] of shippedShipElements.entries()) {
     const shipImage = (
       shipElement.querySelector("div > img") as HTMLImageElement
     ).src;
