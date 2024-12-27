@@ -78,7 +78,7 @@ function getLocalStorage(): [string, string][] {
 
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (!key) continue;
+    if (!key || key === "setItem") continue;
 
     pairs.push([key, localStorage[key]]);
   }

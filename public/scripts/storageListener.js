@@ -3,7 +3,12 @@
 */
 
 const setStorage = localStorage.setItem;
-localStorage.setItem = function (key, value) {
+
+/**
+ * @param {string} key
+ * @param {string} value
+ */
+Storage.prototype.setItem = function (key, value) {
   setStorage.apply(this, [key, value]);
   onStorageChanged(key, value);
 };
@@ -15,7 +20,7 @@ const extensionId = document.currentScript?.dataset.id;
  * @param {Message} message
  */
 function sendMessage(message) {
-  if (extensionId && chrome.runtime) {
+  if (extensionId && window.chrome?.runtime) {
     chrome.runtime.sendMessage(extensionId, message);
   } else {
     window.postMessage(message);
