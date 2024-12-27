@@ -5,24 +5,41 @@
   "author": "DJ_Laser",
   "version": "1.0",
   "description": "A non bugged high seas extension",
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hsext@djlaser.dev"
+    }
+  },
   "action": {
     "default_popup": "pages/popup/popup.html"
   },
   "background": {
     "chromium:service_worker": "scripts/background.ts",
-    "firefox:scripts": ["scripts/background.ts"]
+    "firefox:scripts": [
+      "scripts/background.ts"
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["https://highseas.hackclub.com/*"],
-      "js": ["scripts/harbor.ts"]
+      "matches": [
+        "https://highseas.hackclub.com/*"
+      ],
+      "js": [
+        "scripts/harbor.ts"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["resources/*"],
-      "matches": ["https://highseas.hackclub.com/*"]
+      "resources": [
+        "resources/*"
+      ],
+      "matches": [
+        "https://highseas.hackclub.com/*"
+      ]
     }
   ]
 }
