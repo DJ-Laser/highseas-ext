@@ -148,7 +148,7 @@ function injectDoubloonsPerHour(
 
   const doubloonsPerHourElement = document.createElement("span");
   doubloonsPerHourElement.innerText = `(${doubloonsPerHour} per hour)`;
-  doubloonsElement.id = elementId;
+  doubloonsPerHourElement.id = elementId;
 
   doubloonsElement.parentElement!.appendChild(doubloonsPerHourElement);
 }
