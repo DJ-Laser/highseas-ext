@@ -1,5 +1,5 @@
 function App() {
-  return <>Nothing here yet, come back later!</>;
+  return <>No popup yet, this extension is a work in progress!</>;
 }
 
 export default App;
