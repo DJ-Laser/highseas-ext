@@ -2,9 +2,9 @@ import { sendMessageToWorker } from "./messaging";
 import {
   EXT_CACHED_SHIPS_KEY,
   EXT_NUM_DOUBLOONS_KEY,
-  EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
   getCacheItem,
+  getShopItemsMap,
   type ShipData,
   type ShopItem,
 } from "./storage";
@@ -43,9 +43,9 @@ function setupObservers(onPageChange: () => void) {
 
     if (
       message &&
-      message.id == "storageUpdated" &&
-      typeof message.key == "string" &&
-      typeof message.value == "string"
+      message.id === "storageUpdated" &&
+      typeof message.key === "string" &&
+      typeof message.value === "string"
     ) {
       sendMessageToWorker(message);
     }
@@ -65,6 +65,9 @@ function setupObservers(onPageChange: () => void) {
     switch (message.id) {
       case "injectUpdatedData":
         injectPage();
+        break;
+
+      case "null":
         break;
 
       default:
@@ -92,8 +95,8 @@ async function sendVisitedMessage() {
     localStorage: getLocalStorage(),
   });
 
-  if (response.id == "setFavourites") {
-    localStorage.setItem(FAVOURITE_ITEMS_KEY, response.value);
+  if (response.id === "setFavourites") {
+    localStorage.setItem(FAVOURITE_ITEMS_KEY, JSON.stringify(response.value));
   }
 }
 
@@ -108,16 +111,13 @@ async function injectPage() {
 
   switch (path) {
     case "/shop": {
-      const [currentDoubloons = 0, shopItems = [], ships = []] =
-        await Promise.all([
-          getCacheItem(EXT_NUM_DOUBLOONS_KEY),
-          getCacheItem(EXT_SHOP_ITEMS_KEY),
-          getCacheItem(EXT_CACHED_SHIPS_KEY),
-        ]);
+      const [currentDoubloons = 0, shopItems, ships = []] = await Promise.all([
+        getCacheItem(EXT_NUM_DOUBLOONS_KEY),
+        getShopItemsMap(),
+        getCacheItem(EXT_CACHED_SHIPS_KEY),
+      ]);
 
-      const itemsMap = new Map(shopItems.map((item) => [item.id, item]));
-
-      injectShop(currentDoubloons, itemsMap, ships);
+      injectShop(currentDoubloons, shopItems ?? new Map(), ships);
       break;
     }
 
@@ -246,10 +246,10 @@ function injectShipyard(ships: ShipData[]): boolean {
 
     // Ship doesn't have the data id in the html, so filter based on title and screenshot
     const matchingShips = ships.filter(
-      (ship) => ship.title == shipTitle && ship.screenshotUrl == shipImage,
+      (ship) => ship.title === shipTitle && ship.screenshotUrl === shipImage,
     );
 
-    if (matchingShips.length == 0) {
+    if (matchingShips.length === 0) {
       console.error(
         `No ships found with title: ${shipTitle} and screenshot: ${shipImage}`,
       );
@@ -292,13 +292,13 @@ function injectShop(
   regionElement.addEventListener("change", injectPage);
 
   // Region 1 is US, everywhere else uses global prices
-  const useUsPrices = regionElement.value == "1";
+  const useUsPrices = regionElement.value === "1";
 
   const shopElement = document.getElementById("harbor-tab-scroll-element")!;
   const items = shopElement.querySelectorAll("[id^='item_']");
 
   const doubloonsPerHour = getDoubloonsPerHour(ships);
-  if (!isFinite(doubloonsPerHour) || doubloonsPerHour == 0) return true;
+  if (!isFinite(doubloonsPerHour) || doubloonsPerHour === 0) return true;
 
   for (const item of items) {
     const itemData = shopItems.get(item.id);

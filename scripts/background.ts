@@ -11,9 +11,10 @@ import {
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
   getCacheItem,
+  getFavouriteItems,
   parseShipData,
   setCacheItem,
-  setStorageItem,
+  syncFavouriteItems,
   type ShopItem,
   type SourceShipData,
   type StorageKey,
@@ -37,40 +38,49 @@ async function notifyIfCacheUpdated<K extends StorageKey>(
 function updateStorage(key: string, value: string) {
   switch (key) {
     case FAVOURITE_ITEMS_KEY: {
-      // Don't set favourites to undefined
-      if (!value) break;
-      setStorageItem(FAVOURITE_ITEMS_KEY, value, browser.storage.sync);
+      const favouriteItems = JSON.parse(value);
+      if (!favouriteItems || !Array.isArray(favouriteItems)) break;
+
+      console.log("Updating synced favourites: ", favouriteItems);
+      syncFavouriteItems(favouriteItems);
+      break;
+    }
+
+    case "cache.personTicketBalance": {
+      const numDoubloons = JSON.parse(value)?.value;
+      if (!Number.isInteger(numDoubloons)) break;
+
+      console.log("Updating cached doubloons amount: ", numDoubloons);
+      notifyIfCacheUpdated(EXT_NUM_DOUBLOONS_KEY, numDoubloons);
       break;
     }
 
     case "cache.shopItems": {
-      const items = JSON.parse(value).value as Array<ShopItem>;
-      const itemData = items.map<ShopItem>((item) => ({
+      const itemData = JSON.parse(value).value;
+      if (!itemData || !Array.isArray(itemData)) break;
+
+      const shopItems = (itemData as ShopItem[]).map<ShopItem>((item) => ({
         id: item.id,
         priceUs: item.priceUs,
         priceGlobal: item.priceGlobal,
       }));
 
-      notifyIfCacheUpdated(EXT_SHOP_ITEMS_KEY, itemData);
-      break;
-    }
-
-    case "cache.personTicketBalance": {
-      notifyIfCacheUpdated(EXT_NUM_DOUBLOONS_KEY, JSON.parse(value).value);
+      console.log("Updating cached shop items: ", shopItems);
+      notifyIfCacheUpdated(EXT_SHOP_ITEMS_KEY, shopItems);
       break;
     }
 
     case "cache.ships": {
-      const rawShips: SourceShipData[] = JSON.parse(value).value;
-      if (!rawShips) {
+      const shipData: SourceShipData[] = JSON.parse(value).value;
+      if (!shipData || !Array.isArray(shipData)) {
         console.log("Ship cache cleared");
         break;
       }
 
-      const shipData = parseShipData(rawShips);
-      console.log(shipData);
-      console.log("Updating cached ship data: ", shipData);
-      notifyIfCacheUpdated(EXT_CACHED_SHIPS_KEY, shipData);
+      const ships = parseShipData(shipData);
+
+      console.log("Updating cached ship data: ", ships);
+      notifyIfCacheUpdated(EXT_CACHED_SHIPS_KEY, ships);
       break;
     }
   }
@@ -90,6 +100,9 @@ browser.runtime.onMessage.addListener(
         updateStorage(message.key, message.value);
         break;
 
+      case "null":
+        break;
+
       default:
         console.error("Unknown internal message: ", message);
     }
@@ -102,6 +115,9 @@ browser.runtime.onMessageExternal.addListener((message: Message) => {
       updateStorage(message.key, message.value);
       break;
 
+    case "null":
+      break;
+
     default:
       console.error("Unknown external message: ", message);
   }
@@ -110,35 +126,23 @@ browser.runtime.onMessageExternal.addListener((message: Message) => {
 async function handlevisitedSiteMessage(
   message: VisitedSiteMessage,
 ): Promise<SetFavoutitesMessage | NullMessage> {
-  const cachedFavourites = await getCacheItem(FAVOURITE_ITEMS_KEY);
-  let updateFavoutites = true;
+  const cachedFavourites = await getFavouriteItems();
 
   for (const [key, value] of message.localStorage) {
-    if (key == FAVOURITE_ITEMS_KEY) {
-      if (value == cachedFavourites) {
-        updateFavoutites = false;
-      }
-
-      if (!cachedFavourites) {
-        // No synced favoutites, set the current ones to be synced
-        updateFavoutites = false;
-      } else {
-        // Don't set synced favourites to this, it might be outdated
-        continue;
-      }
+    if (key === FAVOURITE_ITEMS_KEY && cachedFavourites) {
+      // Don't set synced favourites to this, it might be outdated
+      continue;
     }
 
     updateStorage(key, value);
   }
 
-  if (updateFavoutites) {
-    return {
-      id: "setFavourites",
-      value: (await getCacheItem(FAVOURITE_ITEMS_KEY)) ?? "[]",
-    };
-  }
+  const syncedFavourites = await getFavouriteItems();
+  if (!syncedFavourites) return { id: "null" };
 
+  console.log("Setting local favourites to synced value: ", syncedFavourites);
   return {
-    id: "null",
+    id: "setFavourites",
+    value: syncedFavourites,
   };
 }

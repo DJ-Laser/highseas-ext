@@ -4,7 +4,7 @@ export const EXT_NUM_DOUBLOONS_KEY = "numDoubloons" as const;
 export const EXT_CACHED_SHIPS_KEY = "cachedShips" as const;
 
 type StorageKeymap = {
-  [FAVOURITE_ITEMS_KEY]: string;
+  [FAVOURITE_ITEMS_KEY]: string[];
   [EXT_SHOP_ITEMS_KEY]: ShopItem[];
   [EXT_NUM_DOUBLOONS_KEY]: number;
   [EXT_CACHED_SHIPS_KEY]: ShipData[];
@@ -46,10 +46,33 @@ export async function setCacheItem<K extends StorageKey>(
   await setStorageItem(key, value, browser.storage.local);
 }
 
+export async function getFavouriteItems(): Promise<string[] | undefined> {
+  return await getStorageItem(FAVOURITE_ITEMS_KEY, browser.storage.sync);
+}
+
+export async function syncFavouriteItems(
+  favouriteItems: string[],
+): Promise<void> {
+  await setStorageItem(
+    FAVOURITE_ITEMS_KEY,
+    favouriteItems,
+    browser.storage.sync,
+  );
+}
+
 export interface ShopItem {
   id: string;
   priceUs: number;
   priceGlobal: number;
+}
+
+export async function getShopItemsMap(): Promise<
+  Map<string, ShopItem> | undefined
+> {
+  const items = await getCacheItem(EXT_SHOP_ITEMS_KEY);
+  if (!items) return undefined;
+
+  return new Map(items.map((item) => [item.id, item]));
 }
 
 type ShipStatus = "shipped" | "staged";

@@ -51,7 +51,7 @@ export interface VisitedSiteMessage {
 
 export interface SetFavoutitesMessage {
   id: "setFavourites";
-  value: string;
+  value: string[];
 }
 
 export interface StorageUpdatedMessage {

@@ -36,7 +36,7 @@ export function getAvgHoursPerProject(ships: ShipData[]): number {
 // True if a ship was ever shipped, even if there are draft updates
 export function isShipShipped(ship: ShipData) {
   for (const update of ship.updates) {
-    if (update.shipStatus == "shipped") return true;
+    if (update.shipStatus === "shipped") return true;
   }
 
   return false;
