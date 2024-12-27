@@ -1,10 +1,11 @@
-import { sendMessage } from "./messaging";
+import { sendMessageToWorker } from "./messaging";
 import {
   FAVOURITE_ITEMS_KEY,
   getcurrentDoubloons,
   getShipData,
   getShopItems,
   type ShipData,
+  type ShopItem,
 } from "./storage";
 import {
   getAvgDoubloonsPerProject,
@@ -45,7 +46,7 @@ function setupObservers(onPageChange: () => void) {
       typeof message.key == "string" &&
       typeof message.value == "string"
     ) {
-      browser.runtime.sendMessage(message);
+      sendMessageToWorker(message);
     }
   });
 
@@ -61,7 +62,7 @@ function setupObservers(onPageChange: () => void) {
   // Listen for data updated and reload the scripts
   browser.runtime.onMessage.addListener((message: Message) => {
     switch (message.id) {
-      case "InjectUpdatedData":
+      case "injectUpdatedData":
         injectPage();
         break;
 
@@ -85,7 +86,7 @@ function getLocalStorage(): [string, string][] {
 }
 
 async function sendVisitedMessage() {
-  const response: Message = await sendMessage({
+  const response: Message = await sendMessageToWorker({
     id: "visitedSite",
     localStorage: getLocalStorage(),
   });
@@ -97,7 +98,7 @@ async function sendVisitedMessage() {
 
 let shipyardInterval: number | null = null;
 
-function injectPage() {
+async function injectPage() {
   const path = window.location.pathname;
   if (shipyardInterval) {
     clearInterval(shipyardInterval);
@@ -105,23 +106,34 @@ function injectPage() {
   }
 
   switch (path) {
-    case "/shop":
-      injectShop();
-      break;
-    case "/shipyard":
-      shipyardInterval = null;
-      getShipData().then((ships) => {
-        // If there are no shipped ships, don't do anything
-        if (ships.filter((ship) => isShipShipped(ship)).length == 0) return;
-        injectShipyard(ships);
+    case "/shop": {
+      const [currentDoubloons, shopItems, ships] = await Promise.all([
+        getcurrentDoubloons(),
+        getShopItems(),
+        getShipData(),
+      ]);
 
-        // If its not null, we started a new interval or changed the page
-        if (shipyardInterval !== null) {
-          //@ts-expect-error Extension.js is silly and includes nodejs types
-          shipyardInterval = setInterval(() => injectShipyard(ships), 10);
-        }
-      });
+      console.log(currentDoubloons, shopItems, ships);
+
+      injectShop(currentDoubloons, shopItems, ships);
       break;
+    }
+
+    case "/shipyard": {
+      shipyardInterval = null;
+      const ships = await getShipData();
+      // If there are no shipped ships, don't do anything
+      if (ships.filter((ship) => isShipShipped(ship)).length == 0) return;
+      injectShipyard(ships);
+
+      // If its not null, we started a new interval or changed the page
+      if (shipyardInterval !== null) {
+        //@ts-expect-error Extension.js is silly and includes nodejs types
+        shipyardInterval = setInterval(() => injectShipyard(ships), 10);
+      }
+
+      break;
+    }
   }
 }
 
@@ -266,22 +278,22 @@ function injectShipyard(ships: ShipData[]): boolean {
 }
 
 // Returns true if inject was sucessful
-async function injectShop(): Promise<boolean> {
+function injectShop(
+  currentDoubloons: number,
+  shopItems: Map<string, ShopItem>,
+  ships: ShipData[],
+): boolean {
   const regionElement = document.getElementById("region-select")
     ?.children[1] as HTMLSelectElement;
   if (!regionElement) return false;
+
+  regionElement.addEventListener("change", injectPage);
 
   // Region 1 is US, everywhere else uses global prices
   const useUsPrices = regionElement.value == "1";
 
   const shopElement = document.getElementById("harbor-tab-scroll-element")!;
   const items = shopElement.querySelectorAll("[id^='item_']");
-
-  const [currentDoubloons, shopItems, ships] = await Promise.all([
-    getcurrentDoubloons(),
-    getShopItems(),
-    getShipData(),
-  ]);
 
   const doubloonsPerHour = getDoubloonsPerHour(ships);
   if (!isFinite(doubloonsPerHour) || doubloonsPerHour == 0) return true;

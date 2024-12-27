@@ -1,4 +1,5 @@
 import {
+  sendMessageToAllScripts,
   type Message,
   type NullMessage,
   type SetFavoutitesMessage,
@@ -9,6 +10,7 @@ import {
   EXT_NUM_DOUBLOONS_KEY,
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
+  getCacheItem,
   getFavouriteItems,
   parseShipData,
   setCacheItem,
@@ -17,6 +19,17 @@ import {
   type ShopItem,
   type SourceShipData,
 } from "./storage";
+
+async function notifyIfCacheUpdated<T>(key: string, newData: T) {
+  const data = await getCacheItem<T>(key);
+
+  if (data !== newData) {
+    setCacheItem<T>(key, newData);
+    sendMessageToAllScripts({
+      id: "injectUpdatedData",
+    });
+  }
+}
 
 function updateStorage(key: string, value: string) {
   switch (key) {
@@ -35,12 +48,15 @@ function updateStorage(key: string, value: string) {
         priceGlobal: item.priceGlobal,
       }));
 
-      setCacheItem<ShopItem[]>(EXT_SHOP_ITEMS_KEY, itemData);
+      notifyIfCacheUpdated<ShopItem[]>(EXT_SHOP_ITEMS_KEY, itemData);
       break;
     }
 
     case "cache.personTicketBalance": {
-      setCacheItem<number>(EXT_NUM_DOUBLOONS_KEY, JSON.parse(value).value);
+      notifyIfCacheUpdated<number>(
+        EXT_NUM_DOUBLOONS_KEY,
+        JSON.parse(value).value,
+      );
       break;
     }
 
@@ -52,8 +68,9 @@ function updateStorage(key: string, value: string) {
       }
 
       const shipData = parseShipData(rawShips);
+      console.log(shipData);
       console.log("Updating cached ship data: ", shipData);
-      setCacheItem<ShipData[]>(EXT_CACHED_SHIPS_KEY, shipData);
+      notifyIfCacheUpdated<ShipData[]>(EXT_CACHED_SHIPS_KEY, shipData);
       break;
     }
   }
