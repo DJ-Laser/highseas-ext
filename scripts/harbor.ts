@@ -113,8 +113,6 @@ async function injectPage() {
         getShipData(),
       ]);
 
-      console.log(currentDoubloons, shopItems, ships);
-
       injectShop(currentDoubloons, shopItems, ships);
       break;
     }
