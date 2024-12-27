@@ -152,14 +152,14 @@ const SHIPYARD_STATS_ID = "DJLASER-shipyard-stats";
 const SHIPYARD_STATS_CLASSES =
   "rounded-lg bg-card text-card-foreground shadow-sm bg-blend-color-burn flex flex-col gap-2 items-start items-start p-4";
 
+// Returns true if inject was sucessful
 function injectStats(ships: ShipData[]): boolean {
   if (document.getElementById(SHIPYARD_STATS_ID)) return true;
 
   const shipContainerElement = (
-    (document.getElementById("harbor-tab-scroll-element")) as HTMLDivElement
+    document.getElementById("harbor-tab-scroll-element") as HTMLDivElement
   )?.children[1].children[0].children[1].children[3].children[0];
   if (!shipContainerElement) return false;
-
 
   const doubloonsPerProject = getAvgDoubloonsPerProject(ships);
   const hoursPerProject = getAvgHoursPerProject(ships);
@@ -188,10 +188,11 @@ function injectStats(ships: ShipData[]): boolean {
     shipContainerElement.children[1],
   );
 
-  return true
+  return true;
 }
 
-async function injectShipyard(ships: ShipData[]): Promise<boolean> {
+// Returns true if inject was sucessful
+function injectShipyard(ships: ShipData[]): boolean {
   // If this is on the page, we don't need to re render
   if (
     document.getElementById(SHIP_DOUBLOONS_PREFIX + "0") ||
@@ -250,9 +251,10 @@ async function injectShipyard(ships: ShipData[]): Promise<boolean> {
   return true;
 }
 
-// If false, page hasn't loades, try again
+// Returns true if inject was sucessful
 async function injectShop(): Promise<boolean> {
-  const regionElement = document.getElementById("region-select")?.children[1] as HTMLSelectElement;
+  const regionElement = document.getElementById("region-select")
+    ?.children[1] as HTMLSelectElement;
   if (!regionElement) return false;
 
   // Region 1 is US, everywhere else uses global prices
