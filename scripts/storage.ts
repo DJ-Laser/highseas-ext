@@ -1,13 +1,31 @@
-export async function getStorageItem<T>(
-  key: string,
+export const FAVOURITE_ITEMS_KEY = "favouriteItems" as const;
+export const EXT_SHOP_ITEMS_KEY = "shopItems" as const;
+export const EXT_NUM_DOUBLOONS_KEY = "numDoubloons" as const;
+export const EXT_CACHED_SHIPS_KEY = "cachedShips" as const;
+
+type StorageKeymap = {
+  [FAVOURITE_ITEMS_KEY]: string;
+  [EXT_SHOP_ITEMS_KEY]: ShopItem[];
+  [EXT_NUM_DOUBLOONS_KEY]: number;
+  [EXT_CACHED_SHIPS_KEY]: ShipData[];
+};
+
+export type StorageKey = {
+  [T in keyof StorageKeymap]: T;
+}[keyof StorageKeymap];
+
+export type StorageValue<K extends StorageKey> = StorageKeymap[K];
+
+export async function getStorageItem<K extends StorageKey>(
+  key: K,
   storage: browser.storage.StorageArea,
-): Promise<T | undefined> {
+): Promise<StorageValue<K> | undefined> {
   return (await storage.get(key))[key];
 }
 
-export async function setStorageItem<T>(
-  key: string,
-  value: T,
+export async function setStorageItem<K extends StorageKey>(
+  key: K,
+  value: StorageValue<K>,
   storage: browser.storage.StorageArea,
 ): Promise<void> {
   await storage.set({
@@ -15,50 +33,23 @@ export async function setStorageItem<T>(
   });
 }
 
-export async function getCacheItem<T>(key: string): Promise<T | undefined> {
+export async function getCacheItem<K extends StorageKey>(
+  key: K,
+): Promise<StorageValue<K> | undefined> {
   return await getStorageItem(key, browser.storage.local);
 }
 
-export async function setCacheItem<T>(key: string, value: T): Promise<void> {
+export async function setCacheItem<K extends StorageKey>(
+  key: K,
+  value: StorageValue<K>,
+): Promise<void> {
   await setStorageItem(key, value, browser.storage.local);
 }
 
-export const FAVOURITE_ITEMS_KEY = "favouriteItems";
-export async function getFavouriteItems(): Promise<string | undefined> {
-  return await getStorageItem<string>(
-    FAVOURITE_ITEMS_KEY,
-    browser.storage.sync,
-  );
-}
-
-export const EXT_SHOP_ITEMS_KEY = "shopItems";
 export interface ShopItem {
   id: string;
   priceUs: number;
   priceGlobal: number;
-}
-
-export async function getShopItems(): Promise<Map<string, ShopItem>> {
-  const items = await getCacheItem<ShopItem[]>(EXT_SHOP_ITEMS_KEY);
-  const map = new Map<string, ShopItem>();
-  if (!items) return map;
-
-  for (const item of items) {
-    map.set(item.id, item);
-  }
-
-  return map;
-}
-
-export const EXT_NUM_DOUBLOONS_KEY = "numDoubloons";
-export async function getcurrentDoubloons(): Promise<number> {
-  return (await getCacheItem<number>(EXT_NUM_DOUBLOONS_KEY)) ?? 0;
-}
-
-export const EXT_CACHED_SHIPS_KEY = "cachedShips";
-
-export async function getShipData(): Promise<ShipData[]> {
-  return (await getCacheItem<ShipData[]>(EXT_CACHED_SHIPS_KEY)) ?? [];
 }
 
 type ShipStatus = "shipped" | "staged";

@@ -11,20 +11,23 @@ import {
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
   getCacheItem,
-  getFavouriteItems,
   parseShipData,
   setCacheItem,
   setStorageItem,
-  type ShipData,
   type ShopItem,
   type SourceShipData,
+  type StorageKey,
+  type StorageValue,
 } from "./storage";
 
-async function notifyIfCacheUpdated<T>(key: string, newData: T) {
-  const data = await getCacheItem<T>(key);
+async function notifyIfCacheUpdated<K extends StorageKey>(
+  key: K,
+  newData: StorageValue<K>,
+) {
+  const data = await getCacheItem(key);
 
   if (data !== newData) {
-    setCacheItem<T>(key, newData);
+    setCacheItem(key, newData);
     sendMessageToAllScripts({
       id: "injectUpdatedData",
     });
@@ -48,15 +51,12 @@ function updateStorage(key: string, value: string) {
         priceGlobal: item.priceGlobal,
       }));
 
-      notifyIfCacheUpdated<ShopItem[]>(EXT_SHOP_ITEMS_KEY, itemData);
+      notifyIfCacheUpdated(EXT_SHOP_ITEMS_KEY, itemData);
       break;
     }
 
     case "cache.personTicketBalance": {
-      notifyIfCacheUpdated<number>(
-        EXT_NUM_DOUBLOONS_KEY,
-        JSON.parse(value).value,
-      );
+      notifyIfCacheUpdated(EXT_NUM_DOUBLOONS_KEY, JSON.parse(value).value);
       break;
     }
 
@@ -70,7 +70,7 @@ function updateStorage(key: string, value: string) {
       const shipData = parseShipData(rawShips);
       console.log(shipData);
       console.log("Updating cached ship data: ", shipData);
-      notifyIfCacheUpdated<ShipData[]>(EXT_CACHED_SHIPS_KEY, shipData);
+      notifyIfCacheUpdated(EXT_CACHED_SHIPS_KEY, shipData);
       break;
     }
   }
@@ -110,7 +110,7 @@ browser.runtime.onMessageExternal.addListener((message: Message) => {
 async function handlevisitedSiteMessage(
   message: VisitedSiteMessage,
 ): Promise<SetFavoutitesMessage | NullMessage> {
-  const cachedFavourites = await getFavouriteItems();
+  const cachedFavourites = await getCacheItem(FAVOURITE_ITEMS_KEY);
   let updateFavoutites = true;
 
   for (const [key, value] of message.localStorage) {
@@ -134,7 +134,7 @@ async function handlevisitedSiteMessage(
   if (updateFavoutites) {
     return {
       id: "setFavourites",
-      value: (await getFavouriteItems()) ?? "[]",
+      value: (await getCacheItem(FAVOURITE_ITEMS_KEY)) ?? "[]",
     };
   }
 

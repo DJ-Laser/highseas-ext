@@ -1,9 +1,10 @@
 import { sendMessageToWorker } from "./messaging";
 import {
+  EXT_CACHED_SHIPS_KEY,
+  EXT_NUM_DOUBLOONS_KEY,
+  EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
-  getcurrentDoubloons,
-  getShipData,
-  getShopItems,
+  getCacheItem,
   type ShipData,
   type ShopItem,
 } from "./storage";
@@ -107,19 +108,22 @@ async function injectPage() {
 
   switch (path) {
     case "/shop": {
-      const [currentDoubloons, shopItems, ships] = await Promise.all([
-        getcurrentDoubloons(),
-        getShopItems(),
-        getShipData(),
-      ]);
+      const [currentDoubloons = 0, shopItems = [], ships = []] =
+        await Promise.all([
+          getCacheItem(EXT_NUM_DOUBLOONS_KEY),
+          getCacheItem(EXT_SHOP_ITEMS_KEY),
+          getCacheItem(EXT_CACHED_SHIPS_KEY),
+        ]);
 
-      injectShop(currentDoubloons, shopItems, ships);
+      const itemsMap = new Map(shopItems.map((item) => [item.id, item]));
+
+      injectShop(currentDoubloons, itemsMap, ships);
       break;
     }
 
     case "/shipyard": {
       shipyardInterval = null;
-      const ships = await getShipData();
+      const ships = (await getCacheItem(EXT_CACHED_SHIPS_KEY)) ?? [];
       // If there are no shipped ships, don't do anything
       if (ships.filter((ship) => isShipShipped(ship)).length == 0) return;
       injectShipyard(ships);
