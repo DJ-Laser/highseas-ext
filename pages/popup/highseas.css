@@ -5,6 +5,8 @@
 @theme {
   --transition-delay-8000: 8000ms;
 
+  --background-image-highseas: url("/assets/bg.svg");
+
   --background-image-blues: linear-gradient(15deg, #3852cd, #013247);
 
   --animate-trumpet1: trumpet1 1.5s alternate infinite;
