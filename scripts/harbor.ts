@@ -34,6 +34,7 @@ function setupObservers(onPageChange: () => void) {
 
   observer.observe(document, { subtree: true, childList: true });
 
+  // Firefox doesn't support externally_connectable messaging
   window.addEventListener("message", (event) => {
     if (event.origin !== "https://highseas.hackclub.com") return;
     const message = event.data;
@@ -82,13 +83,13 @@ async function sendVisitedMessage() {
   }
 }
 
-let shipyardInterval: NodeJS.Timeout | null | undefined = null;
+let shipyardInterval: number | null = null;
 
 function injectPage() {
   const path = window.location.pathname;
   if (shipyardInterval) {
     clearInterval(shipyardInterval);
-    shipyardInterval = null;
+    shipyardInterval = 0;
   }
 
   switch (path) {
@@ -96,14 +97,15 @@ function injectPage() {
       injectShop();
       break;
     case "/shipyard":
-      shipyardInterval = undefined;
+      shipyardInterval = null;
       getShipData().then((ships) => {
         // If there are no shipped ships, don't do anything
         if (ships.filter((ship) => isShipShipped(ship)).length == 0) return;
         injectShipyard(ships);
 
-        // If its null, we canceled it before it could start, if its undefined, we havent switched yet
+        // If its not null, we started a new interval or changed the page
         if (shipyardInterval !== null) {
+          //@ts-expect-error Extension.js is silly and includes nodejs types
           shipyardInterval = setInterval(() => injectShipyard(ships), 10);
         }
       });
