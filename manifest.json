@@ -26,7 +26,10 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://highseas.hackclub.com/*"],
+      "matches": [
+        "https://highseas.hackclub.com/*",
+        "https://high-seas.hackclub.dev/*"
+      ],
       "js": ["scripts/harbor.ts"]
     }
   ],
@@ -34,11 +37,17 @@
   "web_accessible_resources": [
     {
       "resources": ["resources/*"],
-      "matches": ["https://highseas.hackclub.com/*"]
+      "matches": [
+        "https://highseas.hackclub.com/*",
+        "https://high-seas.hackclub.dev/*"
+      ]
     }
   ],
 
-  "externally_connectable": {
-    "matches": ["https://highseas.hackclub.com/*"]
+  "chromium:externally_connectable": {
+    "matches": [
+      "https://highseas.hackclub.com/*",
+      "https://high-seas.hackclub.dev/*"
+    ]
   }
 }
