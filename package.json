@@ -1,7 +1,7 @@
 {
-  "name": "change-me",
+  "name": "djlaer-hsext",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "build": "extension build --polyfill --zip",
