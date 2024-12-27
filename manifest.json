@@ -4,10 +4,14 @@
   "name": "djlaser-hsext",
   "author": "DJ_Laser",
   "version": "1.0",
-  "description": "A non bugged high seas extension",
-  "permissions": [
-    "storage"
-  ],
+  "description": "A cross-browser extension to enhance the high seas website.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage"],
   "browser_specific_settings": {
     "gecko": {
       "id": "hsext@djlaser.dev"
@@ -18,28 +22,23 @@
   },
   "background": {
     "chromium:service_worker": "scripts/background.ts",
-    "firefox:scripts": [
-      "scripts/background.ts"
-    ]
+    "firefox:scripts": ["scripts/background.ts"]
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://highseas.hackclub.com/*"
-      ],
-      "js": [
-        "scripts/harbor.ts"
-      ]
+      "matches": ["https://highseas.hackclub.com/*"],
+      "js": ["scripts/harbor.ts"]
     }
   ],
+
   "web_accessible_resources": [
     {
-      "resources": [
-        "resources/*"
-      ],
-      "matches": [
-        "https://highseas.hackclub.com/*"
-      ]
+      "resources": ["resources/*"],
+      "matches": ["https://highseas.hackclub.com/*"]
     }
-  ]
+  ],
+
+  "externally_connectable": {
+    "matches": ["https://highseas.hackclub.com/*"]
+  }
 }
