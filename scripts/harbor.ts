@@ -39,10 +39,11 @@ function setupObservers(onPageChange: () => void) {
     const message = event.data;
 
     if (
-      message
-      && message.id == "storageUpdated"
-      && typeof (message.key) == "string"
-      && typeof (message.value) == "string") {
+      message &&
+      message.id == "storageUpdated" &&
+      typeof message.key == "string" &&
+      typeof message.value == "string"
+    ) {
       browser.runtime.sendMessage(message);
     }
   });
