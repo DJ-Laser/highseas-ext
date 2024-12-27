@@ -38,7 +38,13 @@ function setupObservers(onPageChange: () => void) {
 
   // Firefox doesn't support externally_connectable messaging
   window.addEventListener("message", (event) => {
-    if (event.origin !== "https://highseas.hackclub.com") return;
+    if (
+      ![
+        "https://highseas.hackclub.com",
+        "https://high-seas.hackclub.dev",
+      ].includes(event.origin)
+    )
+      return;
     const message = event.data;
 
     if (
@@ -278,6 +284,11 @@ function injectShipyard(ships: ShipData[]): boolean {
 
   return true;
 }
+
+const SHOP_WARNING_ID = "DJLASER-shipsNotFoundWarning";
+
+// Returns true if inject was sucessful
+function injectShopWarning(): boolean {}
 
 // Returns true if inject was sucessful
 function injectShop(
