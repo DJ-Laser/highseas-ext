@@ -24,6 +24,12 @@ export async function setCacheItem<T>(key: string, value: T): Promise<void> {
 }
 
 export const FAVOURITE_ITEMS_KEY = "favouriteItems";
+export async function getFavouriteItems(): Promise<string | undefined> {
+  return await getStorageItem<string>(
+    FAVOURITE_ITEMS_KEY,
+    browser.storage.sync,
+  );
+}
 
 export const EXT_SHOP_ITEMS_KEY = "shopItems";
 export interface ShopItem {

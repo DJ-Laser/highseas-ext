@@ -152,13 +152,14 @@ const SHIPYARD_STATS_ID = "DJLASER-shipyard-stats";
 const SHIPYARD_STATS_CLASSES =
   "rounded-lg bg-card text-card-foreground shadow-sm bg-blend-color-burn flex flex-col gap-2 items-start items-start p-4";
 
-function injectStats(ships: ShipData[]) {
-  if (document.getElementById(SHIPYARD_STATS_ID)) return;
+function injectStats(ships: ShipData[]): boolean {
+  if (document.getElementById(SHIPYARD_STATS_ID)) return true;
 
   const shipContainerElement = (
-    (document.getElementById("radix-:r0:-content-shipyard") ||
-      document.getElementById("radix-:rd:-content-shipyard")) as HTMLDivElement
-  ).children[0].children[1].children[3].children[0];
+    (document.getElementById("harbor-tab-scroll-element")) as HTMLDivElement
+  )?.children[1].children[0].children[1].children[3].children[0];
+  if (!shipContainerElement) return false;
+
 
   const doubloonsPerProject = getAvgDoubloonsPerProject(ships);
   const hoursPerProject = getAvgHoursPerProject(ships);
@@ -182,23 +183,24 @@ function injectStats(ships: ShipData[]) {
     </div>`,
   );
 
-  console.log(statsElement);
-
   shipContainerElement.insertBefore(
     statsElement,
     shipContainerElement.children[1],
   );
+
+  return true
 }
 
-async function injectShipyard(ships: ShipData[]) {
+async function injectShipyard(ships: ShipData[]): Promise<boolean> {
   // If this is on the page, we don't need to re render
   if (
     document.getElementById(SHIP_DOUBLOONS_PREFIX + "0") ||
     document.getElementById(SHIP_ESTIMATED_DOUBLOONS_PREFIX + "0")
   )
-    return;
+    return true;
 
-  injectStats(ships);
+  const injectSucessful = injectStats(ships);
+  if (!injectSucessful) return false;
 
   const shippedShipElements = document.querySelectorAll(
     "[id^='shipped-ship-']",
@@ -244,11 +246,15 @@ async function injectShipyard(ships: ShipData[]) {
       );
     }
   }
+
+  return true;
 }
 
-async function injectShop() {
-  const regionElement = document.getElementById("region-select")!
-    .children[1] as HTMLSelectElement;
+// If false, page hasn't loades, try again
+async function injectShop(): Promise<boolean> {
+  const regionElement = document.getElementById("region-select")?.children[1] as HTMLSelectElement;
+  if (!regionElement) return false;
+
   // Region 1 is US, everywhere else uses global prices
   const useUsPrices = regionElement.value == "1";
 
@@ -262,7 +268,7 @@ async function injectShop() {
   ]);
 
   const doubloonsPerHour = getDoubloonsPerHour(ships);
-  if (!isFinite(doubloonsPerHour) || doubloonsPerHour == 0) return;
+  if (!isFinite(doubloonsPerHour) || doubloonsPerHour == 0) return true;
 
   for (const item of items) {
     const itemData = shopItems.get(item.id);
@@ -285,6 +291,8 @@ async function injectShop() {
       .children[1] as HTMLSpanElement;
     hoursText.innerText = `(${hoursWorth} hours worth)`;
   }
+
+  return true;
 }
 
 sendVisitedMessage();

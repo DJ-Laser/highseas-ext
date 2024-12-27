@@ -9,6 +9,7 @@ import {
   EXT_NUM_DOUBLOONS_KEY,
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
+  getFavouriteItems,
   getStorageItem,
   parseShipData,
   setCacheItem,
@@ -21,6 +22,8 @@ import {
 function updateStorage(key: string, value: string) {
   switch (key) {
     case FAVOURITE_ITEMS_KEY: {
+      // Don't set favourites to undefined
+      if (!value) break;
       setStorageItem(FAVOURITE_ITEMS_KEY, value, browser.storage.sync);
       break;
     }
@@ -95,10 +98,7 @@ browser.runtime.onMessageExternal.addListener((message: Message) => {
 async function handlevisitedSiteMessage(
   message: VisitedSiteMessage,
 ): Promise<SetFavoutitesMessage | NullMessage> {
-  const cachedFavourites = await getStorageItem<string>(
-    FAVOURITE_ITEMS_KEY,
-    browser.storage.sync,
-  );
+  const cachedFavourites = await getFavouriteItems();
   let updateFavoutites = true;
 
   for (const [key, value] of message.localStorage) {
@@ -119,12 +119,10 @@ async function handlevisitedSiteMessage(
     updateStorage(key, value);
   }
 
-  // eslint-disable-next-line no-constant-condition
   if (updateFavoutites || true) {
     return {
       id: "setFavourites",
-      // If cachedFavourites was undefined we would skip this
-      value: cachedFavourites!,
+      value: await getFavouriteItems() ?? "[]",
     };
   }
 
