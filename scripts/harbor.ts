@@ -34,6 +34,19 @@ function setupObservers(onPageChange: () => void) {
 
   observer.observe(document, { subtree: true, childList: true });
 
+  window.addEventListener("message", (event) => {
+    if (event.origin !== "https://highseas.hackclub.com") return;
+    const message = event.data;
+
+    if (
+      message
+      && message.id == "storageUpdated"
+      && typeof (message.key) == "string"
+      && typeof (message.value) == "string") {
+      browser.runtime.sendMessage(message);
+    }
+  });
+
   // Inject script to observe when localstorage is updated
   const script = document.createElement("script");
   script.src = chrome.runtime.getURL("scripts/storageListener.js");

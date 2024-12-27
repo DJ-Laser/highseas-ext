@@ -67,6 +67,11 @@ browser.runtime.onMessage.addListener(
         return true;
       }
 
+      case "storageUpdated": {
+        updateStorage(message.key, message.value);
+        break;
+      }
+
       default: {
         console.error("Unknown internal message: ", message);
       }

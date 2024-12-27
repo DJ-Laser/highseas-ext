@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "extension build",
-    "dev": "extension dev --chromium-binary=$(which chromium)",
-    "start": "extension start --chromium-binary=$(which chromium)"
+    "build": "extension build --polyfill",
+    "build-ff": "extension build --polyfill --browser firefox",
+    "dev": "extension dev --polyfill --chromium-binary=$(which chromium)",
+    "dev-ff": "extension dev --polyfill  --browser firefox",
+    "start": "extension start --polyfill --chromium-binary=$(which chromium)",
+    "start-ff": "extension start --polyfill  --browser firefox"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"

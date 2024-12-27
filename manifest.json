@@ -1,38 +1,40 @@
 {
   "$schema": "https://json.schemastore.org/chrome-manifest.json",
   "manifest_version": 3,
-
   "name": "djlaser-hsext",
   "author": "DJ_Laser",
   "version": "1.0",
-
   "description": "A non bugged high seas extension",
-
   "permissions": [
     "storage"
   ],
-
   "action": {
     "default_popup": "pages/popup/popup.html"
   },
-  
   "background": {
-    "service_worker": "scripts/background.ts"
+    "chromium:service_worker": "scripts/background.ts",
+    "firefox:scripts": [
+      "scripts/background.ts"
+    ]
   },
-
   "content_scripts": [
     {
-      "matches": ["https://highseas.hackclub.com/*"],
-      "js": ["scripts/harbor.ts"]
+      "matches": [
+        "https://highseas.hackclub.com/*"
+      ],
+      "js": [
+        "scripts/harbor.ts"
+      ]
     }
   ],
-
-  "web_accessible_resources": [{
-    "resources": ["resources/*"],
-    "matches": ["https://highseas.hackclub.com/*"]
-  }],
-
-  "externally_connectable": {
-    "matches": ["https://highseas.hackclub.com/*"]
-  }
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "resources/*"
+      ],
+      "matches": [
+        "https://highseas.hackclub.com/*"
+      ]
+    }
+  ]
 }

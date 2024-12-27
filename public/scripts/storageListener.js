@@ -15,9 +15,11 @@ const extensionId = document.currentScript?.dataset.id;
  * @param {Message} message
  */
 function sendMessage(message) {
-  if (!extensionId) throw "Can't send message: no extension id";
-  // @ts-ignore
-  chrome.runtime.sendMessage(extensionId, message);
+  if (extensionId && chrome.runtime) {
+    chrome.runtime.sendMessage(extensionId, message);
+  } else {
+    window.postMessage(message);
+  }
 }
 
 /**
