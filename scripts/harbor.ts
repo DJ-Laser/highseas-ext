@@ -57,6 +57,18 @@ function setupObservers(onPageChange: () => void) {
     (this as HTMLScriptElement).remove();
   };
   (document.head || document.documentElement).appendChild(script);
+
+  // Listen for data updated and reload the scripts
+  browser.runtime.onMessage.addListener((message: Message) => {
+    switch (message.id) {
+      case "InjectUpdatedData":
+        injectPage();
+        break;
+
+      default:
+        console.error("Unknown internal message: ", message);
+    }
+  });
 }
 
 function getLocalStorage(): [string, string][] {

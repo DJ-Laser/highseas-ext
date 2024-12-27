@@ -2,6 +2,7 @@ export type Message =
   | VisitedSiteMessage
   | StorageUpdatedMessage
   | SetFavoutitesMessage
+  | InjectUpdatedDataMessage
   | NullMessage;
 
 export type SendResponse = (respose: Message) => void;
@@ -30,4 +31,8 @@ export interface StorageUpdatedMessage {
   id: "storageUpdated";
   key: string;
   value: string;
+}
+
+export interface InjectUpdatedDataMessage {
+  id: "InjectUpdatedData";
 }

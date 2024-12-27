@@ -10,7 +10,6 @@ import {
   EXT_SHOP_ITEMS_KEY,
   FAVOURITE_ITEMS_KEY,
   getFavouriteItems,
-  getStorageItem,
   parseShipData,
   setCacheItem,
   setStorageItem,
@@ -70,28 +69,24 @@ browser.runtime.onMessage.addListener(
         return true;
       }
 
-      case "storageUpdated": {
+      case "storageUpdated":
         updateStorage(message.key, message.value);
         break;
-      }
 
-      default: {
+      default:
         console.error("Unknown internal message: ", message);
-      }
     }
   },
 );
 
 browser.runtime.onMessageExternal.addListener((message: Message) => {
   switch (message.id) {
-    case "storageUpdated": {
+    case "storageUpdated":
       updateStorage(message.key, message.value);
       break;
-    }
 
-    default: {
+    default:
       console.error("Unknown external message: ", message);
-    }
   }
 });
 
@@ -111,7 +106,7 @@ async function handlevisitedSiteMessage(
         // No synced favoutites, set the current ones to be synced
         updateFavoutites = false;
       } else {
-        // Don't set synced favourites to this, it might be outdates
+        // Don't set synced favourites to this, it might be outdated
         continue;
       }
     }
@@ -119,10 +114,10 @@ async function handlevisitedSiteMessage(
     updateStorage(key, value);
   }
 
-  if (updateFavoutites || true) {
+  if (updateFavoutites) {
     return {
       id: "setFavourites",
-      value: await getFavouriteItems() ?? "[]",
+      value: (await getFavouriteItems()) ?? "[]",
     };
   }
 
