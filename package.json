@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "extension build --polyfill",
-    "build-ff": "extension build --polyfill --browser firefox",
+    "build": "extension build --polyfill --zip",
+    "build-ff": "extension build --polyfill --browser firefox --zip",
     "dev": "extension dev --polyfill --chromium-binary=$(which chromium)",
     "dev-ff": "extension dev --polyfill  --browser firefox",
     "start": "extension start --polyfill --chromium-binary=$(which chromium)",
