@@ -206,6 +206,8 @@ function injectStats(ships: ShipData[]): boolean {
   const doubloonsEarned = getTotalDoubloons(ships);
   const timeSpent = getTotalHours(ships);
 
+  const showAverage = ships.length > 0;
+
   const statsElement = htmlToNode(
     `<div id="${SHIPYARD_STATS_ID}" class="${SHIPYARD_STATS_CLASSES}">
       <div class="flex flex-wrap items-center gap-3 text-sm">
@@ -213,12 +215,17 @@ function injectStats(ships: ShipData[]): boolean {
         ${doubloonsPill(`${doubloonsEarned} doubloons earned`)}
         ${timePill(`${truncateTo(timeSpent, 10)} hours shipped`)}
       </div>
+      ${
+        showAverage
+          ? `
       <div class="flex flex-wrap items-center gap-3 text-sm">
-      <h2 class="text-xl font-semibold text-center">Average:</h2>
+        <h2 class="text-xl font-semibold text-center">Average:</h2>
         ${doubloonsPill(`${truncateTo(doubloonsPerHour, 10)} per hour`)}
         ${doubloonsPill(`${truncateTo(doubloonsPerProject, 10)} per project`)}
         ${timePill(`${truncateTo(hoursPerProject, 10)} hours per project`)}
-      </div>
+      </div>`
+          : ""
+      }
     </div>`,
   );
 
