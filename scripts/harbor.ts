@@ -140,7 +140,7 @@ async function injectPage() {
       injectShipyard(ships);
 
       // If its not null, we started a new interval or changed the page
-      if (shipyardInterval !== null) {
+      if (shipyardInterval === null) {
         //@ts-expect-error Extension.js is silly and includes nodejs types
         shipyardInterval = setInterval(() => injectShipyard(ships), 10);
       }
