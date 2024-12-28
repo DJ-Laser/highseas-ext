@@ -13,7 +13,7 @@ export function Ship({ data }: ShipProps) {
         src={data.screenshotUrl}
         alt={`Screenshot of ${data.title}`}
       />
-      <h2>ship.title</h2>
+      <h2>{data.title}</h2>
     </Card>
   );
 }
