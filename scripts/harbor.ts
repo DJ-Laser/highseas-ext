@@ -117,11 +117,16 @@ async function injectPage() {
 
   switch (path) {
     case "/shop": {
-      const [currentDoubloons = 0, shopItems, ships = []] = await Promise.all([
+      const [currentDoubloons = 0, shopItems, ships] = await Promise.all([
         getCacheItem(EXT_NUM_DOUBLOONS_KEY),
         getShopItemsMap(),
         getCacheItem(EXT_CACHED_SHIPS_KEY),
       ]);
+
+      if (!ships) {
+        injectShopWarning();
+        return;
+      }
 
       injectShop(currentDoubloons, shopItems ?? new Map(), ships);
       break;
@@ -286,9 +291,30 @@ function injectShipyard(ships: ShipData[]): boolean {
 }
 
 const SHOP_WARNING_ID = "DJLASER-shipsNotFoundWarning";
+const SHOP_WARNING_CLASSES =
+  "mx-auto px-3 py-2 w-fit rounded-lg bg-card text-card-foreground shadow-sm bg-blend-color-burn flex flex-nowrap items-center gap-3";
 
 // Returns true if inject was sucessful
-function injectShopWarning(): boolean {}
+function injectShopWarning(): boolean {
+  if (document.getElementById(SHOP_WARNING_ID)) return true;
+
+  const tabsElement = document.querySelector(`[role="tablist"]`);
+  if (!tabsElement) return false;
+
+  const warningElement = htmlToNode(
+    `<div id="${SHOP_WARNING_ID}" class="${SHOP_WARNING_CLASSES}">
+      <img src="${browser.runtime.getURL("/icons/icon.svg")}" class="w-6 h-6 rounded-sm" />
+      <h2 class="w-full text-xl font-semibold">Can't calculate doubloons per hour, please visit the shipyard</h2>
+    </div>`,
+  );
+
+  tabsElement.nextSibling!.insertBefore(
+    warningElement,
+    tabsElement.nextSibling!.firstChild,
+  );
+
+  return true;
+}
 
 // Returns true if inject was sucessful
 function injectShop(
