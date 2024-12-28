@@ -6,12 +6,12 @@
 
 ![Extension showing hours left on the shop](https://cloud-5xi5me6k7-hack-club-bot.vercel.app/3screenshot_from_2024-12-28_16-29-25.png)
 
-## Featutes
+## Features
 
 - 🪙 Average and per project statistics on the shipyard
 - 💰 Calculated hours worth and hours remaining for items in the shop
 - ⚙️ Popup allows you to check your stats while offline
-- ❤️ Sync your favourited items across devices
+- ❤️ Sync your favorited items across devices
 - 📈 Uses raw data for greater accuracy
 
 ## Install for both chrome and firefox
