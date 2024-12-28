@@ -1,12 +1,19 @@
-import { getStorageItem, type StorageKey, type StorageValue } from "../../../scripts/storage";
-import { suspend } from "suspend-react";
+import { use } from "react";
+import { type StorageKey, type StorageValue } from "../../../scripts/storage";
 
-type storageAreaName = "local" | "sync";
+type StorageAreaName = "local" | "sync";
+type StorageCache = {
+  [K in StorageAreaName]: Promise<{
+    [L in StorageKey]: StorageValue<L> | undefined
+  }>
+}
 
-//browser.storage.onChanged.addListener((changes, areaName) => { });
+const storageItems: StorageCache = {
+  local: browser.storage.local.get(null), sync: browser.storage.sync.get(null)
+} as StorageCache;
 
-function useStorageItem<K extends StorageKey>(key: K, areaName: storageAreaName): StorageValue<K> | undefined {
-  const initial = suspend(() => getStorageItem(key, browser.storage[areaName]), [key, areaName])
+function useStorageItem<K extends StorageKey>(key: K, areaName: StorageAreaName): StorageValue<K> | undefined {
+  const initial = use(storageItems[areaName])[key];
 
   return initial;
 }
