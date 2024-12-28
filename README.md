@@ -1,7 +1,29 @@
-# DJ_Laser's React Web Template
+# DJ_Laser's High Seas Tracker
 
-This template is mainly intended so I can create new web apps easily, but anyone can feel free to use it.
+### Track your doubloons across both major browsers
 
-I wanted to only have to so through setting up node stuff one last time since i use these frameworks together so often.
+![Extension popup appearing on search.nixos.org](https://cloud-5xi5me6k7-hack-club-bot.vercel.app/1screenshot_from_2024-12-28_16-30-49.png)
 
-It also has a nix flake to setup node automagically via direnv.
+![Extension showing hours left on the shop](https://cloud-5xi5me6k7-hack-club-bot.vercel.app/3screenshot_from_2024-12-28_16-29-25.png)
+
+## Featutes
+
+- 🪙 Average and per project statistics on the shipyard
+- 💰 Calculated hours worth and hours remaining for items in the shop
+- ⚙️ Popup allows you to check your stats while offline
+- ❤️ Sync your favourited items across devices
+- 📈 Uses raw data for greater accuracy
+
+## Install for both chrome and firefox
+
+[https://github.com/DJ-Laser/highseas-ext/releases/](https://github.com/DJ-Laser/highseas-ext/releases/)
+
+Download the correct file for your browser and import it from the extension settings
+
+## Build Manually
+
+Use the included nix flake by running `nix develop`
+
+Install packages with `npm i --force` (`--force` is needed because `@hackclub/icons` does officially not support react 19)
+
+Build for chrome or firefox with `npm run build` or `npm run build-ff` respectively
