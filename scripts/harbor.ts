@@ -197,7 +197,7 @@ function injectStats(ships: ShipData[]): boolean {
 
   const shipContainerElement = (
     document.getElementById("harbor-tab-scroll-element") as HTMLDivElement
-  )?.children[1].children[0].children[1].children[3].children[0];
+  )?.children[1].children[0].children[1].children[4].children[0];
   if (!shipContainerElement) return false;
 
   const doubloonsPerProject = getAvgDoubloonsPerProject(ships);
