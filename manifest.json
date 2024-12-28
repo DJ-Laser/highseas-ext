@@ -14,7 +14,7 @@
   "permissions": ["storage", "tabs"],
   "browser_specific_settings": {
     "gecko": {
-      "id": "hsext@djlaser.dev"
+      "id": "high_seas_tracker@djlaser.dev"
     }
   },
   "action": {
