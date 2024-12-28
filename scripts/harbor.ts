@@ -211,7 +211,7 @@ function injectStats(ships: ShipData[]): boolean {
   const statsElement = htmlToNode(
     `<div id="${SHIPYARD_STATS_ID}" class="${SHIPYARD_STATS_CLASSES}">
       <div class="flex flex-wrap items-center gap-3 text-sm">
-      <h2 class="text-xl font-semibold text-center">All time:</h2>
+      <h2 class="text-xl font-semibold text-center">All Time:</h2>
         ${doubloonsPill(`${doubloonsEarned} doubloons earned`)}
         ${timePill(`${truncateTo(timeSpent, 10)} hours shipped`)}
       </div>

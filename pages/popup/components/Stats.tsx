@@ -35,7 +35,7 @@ export function Stats({ ships }: { ships: ShipData[] }) {
 
   return (
     <Card className="p-2 flex flex-col rounded-lg">
-      <PillGroup heading="All time:">
+      <PillGroup heading="All Time:">
         <DoubloonPill msg={`${doubloonsEarned} doubloons earned`} />
         <DoubloonPill msg={`${truncateTo(timeSpent, 10)} hours shipped`} />
       </PillGroup>
