@@ -1,6 +1,7 @@
 # DJ_Laser's High Seas Tracker
 
 ### Track your doubloons across both major browsers
+### [Install now!](https://github.com/DJ-Laser/highseas-ext?tab=readme-ov-file#install-for-both-chrome-and-firefox)
 
 ![Extension popup appearing on search.nixos.org](https://cloud-5xi5me6k7-hack-club-bot.vercel.app/1screenshot_from_2024-12-28_16-30-49.png)
 
