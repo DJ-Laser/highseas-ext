@@ -16,9 +16,11 @@
 
 ## Install for both chrome and firefox
 
-[https://github.com/DJ-Laser/highseas-ext/releases/](https://github.com/DJ-Laser/highseas-ext/releases/)
+- Get it on the chrome web store: [ Not yet approved :( ]
+- Get it on addons.mozilla.org: https://addons.mozilla.org/en-US/firefox/addon/high-seas-tracker/
+- Get the installer file: https://github.com/DJ-Laser/highseas-ext/releases
 
-Download the correct file for your browser and import it from the extension settings
+  Download the correct file for your browser and import it from the extension settings
 
 ## Build Manually
 
